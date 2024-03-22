@@ -1,29 +1,16 @@
 import asyncHandler from "../middleware/asyncHandler.js";
 import User from "../models/UserModel.js";
-import jwt from 'jsonwebtoken'
+import genereateToken from "../utils/generateToken.js";
 
 // @desc Auth user & get token
-// @route POST/api/users/login
+// @route POST/api/users
 // @access Public
 const authUser=asyncHandler(async(req,res)=>{
   const {email,password}=req.body;
 
   const user=await User.findOne({email:email});
   if(user &&(await user.matchPassword(password))){
-    const token=jwt.sign({userId:user._id},
-      'ss',{
-      expiresIn:'30d'
-    })
-
-    //set JWT as http - only cookie
-
-    res.cookie('jwt',token,{
-      httpOnly:true,
-      secure:process.env.NODE_ENV !=='development',
-      sameSite:'strict',
-      maxAge:30*24*60*60*1000
-    })
-
+    genereateToken(res,user._id);
     res.json({
       _id:user._id,
       name:user.name,
@@ -49,8 +36,27 @@ const registerUser=asyncHandler(async(req,res)=>{
     throw new Error('user allready exicts');
   }
 
-  const 
-    res.send('register user')
+  const user=await User.create({
+    name,
+    email,
+    password
+  })
+
+  if(user){
+
+    genereateToken(res,user._id);
+
+    res.status(201).json({
+      _id:user._id,
+      name:user.name,
+      email:user.email,
+      isAdmin:user.isAdmin
+    })
+  }else{
+    res.status(400);
+    throw new Error('invalid user data')
+  }
+
   });
 
 // @desc logaut user
@@ -69,15 +75,48 @@ const logoutUser=asyncHandler(async(req,res)=>{
 // @route GET /api/users/profile
 // @access private
 const getUserProfile=asyncHandler(async(req,res)=>{
-    res.send('get user profile')
+  const user=await User.findById(req.user._id);
+
+  if(user){
+    res.status(200).json({
+      _id:user._id,
+      name:user.name,
+      email:user.email,
+      isAdmin:user.isAdmin
+    })
+  }else{
+    res.status(404);
+    throw new Error('User not found');
+  }
   });
 
 // @desc update user profile
 // @route PUT /api/users/profile
 // @access private
 const updateUserProfile=asyncHandler(async(req,res)=>{
-    res.send('update user profile')
-  });
+  const user=await User.findById(req.user._id);
+
+  if(user){
+
+    user.name=req.body.name||user.name;
+    user.email=req.body.email||user.email;
+
+    if(req.body.password){
+      user.password=req.body.password
+    }
+
+    const updatedUser=await user.save();
+    res.status(200).json({
+      _id:updatedUser._id,
+      name:updatedUser.name,
+      email:updatedUser.email,
+      isAdmin:updatedUser.isAdmin
+    })
+  }else{
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
 
 // @desc get users
 // @route Get /api/users
@@ -90,8 +129,8 @@ const getUsers=asyncHandler(async(req,res)=>{
 // @route Get /api/users
 // @access private/admin
 const getUserById=asyncHandler(async(req,res)=>{
-    res.send('get users')
-  });
+
+});
 
   // @desc delete user profile
 // @route delete /api/users
@@ -104,7 +143,7 @@ const deleteUser=asyncHandler(async(req,res)=>{
 // @route put /api/users/:id
 // @access private/admin
 const updateUserById=asyncHandler(async(req,res)=>{
-    res.send('update users')
+ 
   });
 
   export {
