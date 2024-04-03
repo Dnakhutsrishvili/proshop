@@ -6,27 +6,26 @@ import User from '../models/UserModel.js';
 
 const protect=asyncHandler(async(req,res,next)=>{
     let token;
-
-    //read the JWT from cookie
-    token=req.cookies.jwt;
-
+    
+    //read the JWT from header
+    token = req.headers.authorization.split(" ")[1]
     if(token){
         try {
             const decoded=jwt.verify(token,'ss');
-
-            await User.findById(decoded.userId).select('-password');
+          req.user=  await User.findById(decoded.userId).select('-password');
             next()
             
         } catch (error) {
             res.status(401);
 
-            throw new Error('Not authorized')
+            throw new Error('Not authorized ,token failed')
         }
 
     }else{
         res.status(401);
         throw new Error('Not authorized, no token')
     }
+
 })
 
 
