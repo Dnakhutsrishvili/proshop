@@ -9,8 +9,7 @@ export const apiSlice=createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: BASE_URL,
         prepareHeaders: (headers, { getState })=> {
-            const token = getState().auth.userInfo.jwt;
-            
+            const token = getState().auth.userInfo?.jwt;
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }

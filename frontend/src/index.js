@@ -4,6 +4,7 @@ import { createBrowserRouter,
         createRoutesFromElements ,
 Route,
 RouterProvider} from 'react-router-dom';
+import {PayPalScriptProvider} from '@paypal/react-paypal-js'
 import {Provider} from 'react-redux';
 import store from './store';
 import './assets/styles/index.css';
@@ -16,10 +17,11 @@ import LoginScreen from './screens/LoginScreen';
 import RegisterScreen from './screens/RegisterScreen';
 import ShippingScreen from './screens/ShippingScreen';
 import PrivateRoute from './components/PrivateRoute';
+import AdminRoute from './components/AdminRoute';
 import PaymentScreen from './screens/PaymentScreen';
 import PlaceOrderScreen from './screens/PlaceOrderScreen';
 import OrderScreen from './screens/OrderScreen';
-
+import OrderListScreen from './screens/OrderListScreen';
 
 const router=createBrowserRouter(
   createRoutesFromElements(
@@ -37,8 +39,14 @@ const router=createBrowserRouter(
     <Route path='/shipping' element={<ShippingScreen/>}></Route>
     <Route path='/payment' element={<PaymentScreen></PaymentScreen>}></Route>
     <Route path='/placeorder' element={<PlaceOrderScreen></PlaceOrderScreen>}></Route>
-    <Route path='/order/:id' element={<OrderScreen></OrderScreen>}></Route>
+    <Route path='/orders/:id' element={<OrderScreen></OrderScreen>}></Route>
 
+
+</Route>
+
+<Route path='' element={<AdminRoute/>}>
+  
+    <Route path='/admin/orderlist' element={<OrderListScreen/>}></Route>
 
 </Route>
     </Route>
@@ -46,11 +54,11 @@ const router=createBrowserRouter(
 )
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <React.StrictMode>
     <Provider store={store}>
-<RouterProvider router={router}/>
+      <PayPalScriptProvider   deferLoading={true}>
+      <RouterProvider router={router}/>
+      </PayPalScriptProvider>
 </Provider>
-  </React.StrictMode>
 );
 
 

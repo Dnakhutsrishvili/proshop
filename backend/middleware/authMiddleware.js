@@ -6,7 +6,6 @@ import User from '../models/UserModel.js';
 
 const protect=asyncHandler(async(req,res,next)=>{
     let token;
-    
     //read the JWT from header
     token = req.headers.authorization.split(" ")[1]
     if(token){
