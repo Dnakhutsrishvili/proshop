@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const orderSchema=mongoose.Schema({
-    users:{
+    user:{
         type:mongoose.Schema.Types.ObjectId,
         required:true,
         ref:'User',
@@ -14,7 +14,7 @@ const orderSchema=mongoose.Schema({
         price:{type:Number,required:true},
         product:{type:mongoose.Schema.Types.ObjectId,
                 required:true,
-                ref:'Product'
+                ref:'Product',
         }
 
     }],

@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import {Link,useParams} from 'react-router-dom';
-import {Row,Col,ListGroup,Image,Form,Button,Card}from 'react-bootstrap';
-import { PayPalButtons, usePayPalScriptReducer } from '@paypal/react-paypal-js'
+import {Row,Col,ListGroup,Image,Button,Card}from 'react-bootstrap';
+import {  usePayPalScriptReducer } from '@paypal/react-paypal-js'
 import Message from '../components/Messages';
 import Loader from '../components/Loader';
-import {useGetOrderDetailsQuery,usePayOrderMutation,useGetPayPalClientIdQuery} from '../slices/ordersApiSlice';
+import {useGetOrderDetailsQuery,usePayOrderMutation,useGetPayPalClientIdQuery,useDeliverOrderMutation} from '../slices/ordersApiSlice';
 import {toast} from 'react-toastify';
 import {useSelector} from 'react-redux';
 import { PayPalButton } from "react-paypal-button-v2";
@@ -17,6 +17,7 @@ function OrderScreen() {
 
     const [ payOrder,{isLoading:loadingPay} ]=usePayOrderMutation();
 
+    const [deliverOrder,{isLoading:loadingDeliver}]=useDeliverOrderMutation();
 
     const [{isPending},paypalDispatch]=usePayPalScriptReducer();
 
@@ -78,6 +79,16 @@ function OrderScreen() {
             })
         }
 
+        const deliverOrderHandler=async()=>{
+            try{
+                await deliverOrder(orderId);
+                
+                toast.success('Order Delivered');
+            }catch(err){
+                toast.error(err?.data?.message||err.message)
+            }
+        }
+
   return isLoading?<Loader/>:error?<Message variant='danger'/>:(
     <>
     <h1>Order {order._id}</h1>
@@ -88,11 +99,11 @@ function OrderScreen() {
                     <h2>Shipping</h2>
                     <p>
                         <strong>Name:</strong>
-                        {order.users.name}
+                        {order.user.name}
                     </p>
                     <p>
                         <strong>Email:</strong>
-                        {order.users.email}
+                        {order.user.email}
                     </p>
                     <p>
                         <strong>Adress: </strong>
@@ -118,7 +129,7 @@ function OrderScreen() {
                     {order.paymentMethod}
                     </p>
                     {order.isPaid?(<Message variant='success'>
-                        Delivered on {order.paidAt}
+                        Paid At {order.paidAt}
                     </Message>):(
                         <Message variant='danger'>
                         Not Paid
@@ -187,6 +198,15 @@ function OrderScreen() {
                                       </div>  
                                     </div>
                                 )}
+                            </ListGroup.Item>
+                        )}
+                        {loadingDeliver&&<Loader/>}
+                        {userInfo &&userInfo.isAdmin&&order.isPaid&&!order.isDelivered&&(
+                            <ListGroup.Item>
+                                <Button type='button' className='btn btn-block'
+                                onClick={deliverOrderHandler}>
+                                    Mark As Delivered
+                                </Button>
                             </ListGroup.Item>
                         )}
                 </ListGroup>
