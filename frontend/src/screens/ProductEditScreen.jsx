@@ -6,7 +6,10 @@ import Messages from '../components/Messages';
 import Loader from '../components/Loader';
 import FormContainer from '../components/FormContainer';
 import { toast } from 'react-toastify';
-import { useUpdateProductMutation,useGetProductsDetailsQuery } from '../slices/productsApiSlice';
+import { useUpdateProductMutation,
+    useGetProductsDetailsQuery,
+useUploadProductImageMutation } from '../slices/productsApiSlice';
+import { isAsyncThunkAction } from '@reduxjs/toolkit';
 
 function ProductEditScreen() {
     const {id:productId}=useParams();
@@ -21,6 +24,7 @@ function ProductEditScreen() {
 
     const {data:product,isLoading,error}=useGetProductsDetailsQuery(productId);
     const [updateProduct,{isLoading:loadingUpdate}]=useUpdateProductMutation();
+    const [uploadProductImage,{isLoading:loadingUpload}]=useUploadProductImageMutation();
 
     const navigate=useNavigate();
     useEffect(()=>{
@@ -56,6 +60,18 @@ function ProductEditScreen() {
             navigate('/admin/productlist');
         }
     }
+
+    const uploadFileHandler=async(e)=>{
+        const formData= new FormData();
+        formData.append('image', e.target.files[0]);
+        try{
+            const res =await uploadProductImage(formData).unwrap();
+            toast.success(res.message);
+            setImage(res.image);
+        }catch (err){
+            toast.error(err.data.message||err.error)
+        }
+    }
   return (
     <>
     <Link to='/admin/productList' className='btn btn-light my-3'>
@@ -87,7 +103,30 @@ function ProductEditScreen() {
                     
                 </Form.Control>
                 </Form.Group>
-                {/* image palceholder */}
+
+                <Form.Group controlId='image' className='my-2'>
+
+                <Form.Label>
+                    Image
+                </Form.Label>
+                <Form.Control
+                type='text' 
+                placeholder='enter image url'
+                value={image}
+                onChange={(e)=>setImage}
+                >
+
+                </Form.Control>
+
+                <Form.Control
+                type='file' 
+                label='choose file'
+                onChange={uploadFileHandler}
+                >
+
+                </Form.Control>
+                </Form.Group>   
+
                 <Form.Group controlId='brand' className='my-2'>
                 <Form.Label>Brand</Form.Label>
                 <Form.Control
