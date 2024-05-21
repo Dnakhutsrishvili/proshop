@@ -7,7 +7,7 @@ const __dirname = path.resolve();
 
 const storage=multer.diskStorage({
     destination(req,file,cb){
-        cb(null,'uploads/')
+        cb(null,`${__dirname}/frontend/public/uploads`)
     },
     filename(req,file,cb){
         console.log(file)
@@ -33,10 +33,10 @@ const upload= multer({
 router.post('/', upload.single('image'),(req,res)=>{
     const imagePath = req.file.path.replace(/\\/g, '/');
 
-    console.log(imagePath)
+    console.log(imagePath.split('public')[1])
     res.send({
         message:'Image uploaded',
-        image:`/${imagePath}`
+        image:`${imagePath.split('public')[1]}`
     })
 })
 export default router;
