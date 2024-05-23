@@ -38,8 +38,6 @@ app.get('/log-cookies', (req, res) => {
 
 const __dirname = path.resolve();
 
-console.log(__dirname)
-
 app.use('/uploads', express.static(path.join(`${__dirname}/frontend/public`, 'uploads')));
 
 app.use(notFound);

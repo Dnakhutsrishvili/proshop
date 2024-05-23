@@ -9,7 +9,6 @@ import { toast } from 'react-toastify';
 import { useUpdateProductMutation,
     useGetProductsDetailsQuery,
 useUploadProductImageMutation } from '../slices/productsApiSlice';
-import { isAsyncThunkAction } from '@reduxjs/toolkit';
 
 function ProductEditScreen() {
     const {id:productId}=useParams();
@@ -24,7 +23,7 @@ function ProductEditScreen() {
 
     const {data:product,isLoading,error}=useGetProductsDetailsQuery(productId);
     const [updateProduct,{isLoading:loadingUpdate}]=useUpdateProductMutation();
-    const [uploadProductImage,{isLoading:loadingUpload}]=useUploadProductImageMutation();
+    const [uploadProductImage]=useUploadProductImageMutation();
 
     const navigate=useNavigate();
     useEffect(()=>{
